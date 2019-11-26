@@ -1,135 +1,10 @@
 import React from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  NetInfo
-} from "react-native";
+import { ScrollView, StyleSheet, Text, View, TextInput } from "react-native";
 import Constants from "expo-constants";
+import Items from "./Items";
 import { SQLite } from "expo-sqlite";
 
 const db = SQLite.openDatabase("db.db");
-
-class Items extends React.Component {
-  state = {
-    items: null,
-    connection_Status : "",
-    loading: false
-  };
-
-  componentDidMount() {
-    // this.update();
-    NetInfo.isConnected.addEventListener(
-        'connectionChange',
-        this._handleConnectivityChange
-
-    );
-   
-    NetInfo.isConnected.fetch().done((isConnected) => {
-
-      if(isConnected == true)
-      {
-        this.setState({connection_Status : "Online"})
-      }
-      else
-      {
-        this.setState({connection_Status : "Offline"})
-      }
-
-    });
-  }
-
-
-
-  componentWillMount = async () => {
-    try {
-      const response = await fetch('http://192.168.43.22:8080/getItems')
-      const items = await response.json()
-      console.log(items);
-
-      this.setState({loading: false, items})
-    } catch (e) {
-      this.setState({loading: false, error: true})
-    }
-  }
-
-
-  componentWillUnmount() {
-
-    NetInfo.isConnected.removeEventListener(
-        'connectionChange',
-        this._handleConnectivityChange
-    );
-  }
-
-  _handleConnectivityChange = async (isConnected) => {
-
-    if(isConnected == true)
-      {
-        this.setState({connection_Status : "Online"})
-      }
-      else
-      {
-        this.setState({connection_Status : "Offline"})
-      }
-
-      try {
-      const response = await fetch('http://192.168.43.22:8080/getItems')
-      const items = await response.json()
-      console.log(items);
-
-      this.setState({loading: false, items})
-    } catch (e) {
-      this.setState({loading: false, error: true})
-    }
-  };
-
-
-
-  render() {
-    const { done: doneHeading } = this.props;
-    const { items } = this.state;
-    const heading = "Todo";
-
-    if (items === null || items.length === 0) {
-      return null;
-    }
-
-    return (
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionHeading}>{heading}</Text>
-        {items.map(({ id, done, value }) => (
-          <TouchableOpacity
-            key={id}
-            onPress={() => this.props.onPressItem && this.props.onPressItem(id)}
-            style={{
-              backgroundColor: done ? "#1c9963" : "#fff",
-              borderColor: "#000",
-              borderWidth: 1,
-              padding: 8
-            }}
-          >
-            <Text style={{ color: done ? "#fff" : "#000" }}>{value}</Text>
-          </TouchableOpacity>
-        ))}
-        <Text style={{fontSize: 20, textAlign: 'center', marginBottom: 20}}> You are { this.state.connection_Status } </Text>
-      </View>
-    );
-  }
-
-  update() {
-    db.transaction(tx => {
-      tx.executeSql(
-        `select * from items where done = ?;`,
-        [this.props.done ? 1 : 0],
-        (_, { rows: { _array } }) => this.setState({ items: _array })
-      );
-    });
-  }
-}
 
 export default class App extends React.Component {
   state = {
@@ -153,34 +28,7 @@ export default class App extends React.Component {
           />
         </View>
         <ScrollView style={styles.listArea}>
-          <Items
-            done={false}
-            ref={todo => (this.todo = todo)}
-            onPressItem={id =>
-              db.transaction(
-                tx => {
-                  tx.executeSql(`update items set done = 1 where id = ?;`, [
-                    id
-                  ]);
-                },
-                null,
-                this.update
-              )
-            }
-          />
-          <Items
-            done={true}
-            ref={done => (this.done = done)}
-            onPressItem={id =>
-              db.transaction(
-                tx => {
-                  tx.executeSql(`delete from items where id = ?;`, [id]);
-                },
-                null,
-                this.update
-              )
-            }
-          />
+          <Items done={false} ref={todo => (this.todo = todo)} />
         </ScrollView>
       </View>
     );
@@ -206,7 +54,6 @@ export default class App extends React.Component {
 
   update = () => {
     this.todo && this.todo.update();
-    this.done && this.done.update();
   };
 }
 
