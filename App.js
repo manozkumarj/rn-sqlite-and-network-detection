@@ -16,11 +16,12 @@ const db = SQLite.openDatabase("db.db");
 class Items extends React.Component {
   state = {
     items: null,
-    connection_Status : ""
+    connection_Status : "",
+    loading: false
   };
 
   componentDidMount() {
-    this.update();
+    // this.update();
     NetInfo.isConnected.addEventListener(
         'connectionChange',
         this._handleConnectivityChange
@@ -42,6 +43,20 @@ class Items extends React.Component {
   }
 
 
+
+  componentWillMount = async () => {
+    try {
+      const response = await fetch('http://192.168.43.22:8080/getItems')
+      const items = await response.json()
+      console.log(items);
+
+      this.setState({loading: false, items})
+    } catch (e) {
+      this.setState({loading: false, error: true})
+    }
+  }
+
+
   componentWillUnmount() {
 
     NetInfo.isConnected.removeEventListener(
@@ -50,7 +65,7 @@ class Items extends React.Component {
     );
   }
 
-  _handleConnectivityChange = (isConnected) => {
+  _handleConnectivityChange = async (isConnected) => {
 
     if(isConnected == true)
       {
@@ -60,6 +75,16 @@ class Items extends React.Component {
       {
         this.setState({connection_Status : "Offline"})
       }
+
+      try {
+      const response = await fetch('http://192.168.43.22:8080/getItems')
+      const items = await response.json()
+      console.log(items);
+
+      this.setState({loading: false, items})
+    } catch (e) {
+      this.setState({loading: false, error: true})
+    }
   };
 
 
@@ -67,7 +92,7 @@ class Items extends React.Component {
   render() {
     const { done: doneHeading } = this.props;
     const { items } = this.state;
-    const heading = doneHeading ? "Completed" : "Todo";
+    const heading = "Todo";
 
     if (items === null || items.length === 0) {
       return null;
@@ -110,14 +135,6 @@ export default class App extends React.Component {
   state = {
     text: null
   };
-
-  componentDidMount() {
-    db.transaction(tx => {
-      tx.executeSql(
-        "create table if not exists items (id integer primary key not null, done int, value text);"
-      );
-    });
-  }
 
   render() {
     return (
