@@ -1,5 +1,12 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, View, TextInput } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  NetInfo
+} from "react-native";
 import Constants from "expo-constants";
 import Items from "./Items";
 import { SQLite } from "expo-sqlite";
@@ -11,6 +18,53 @@ export default class App extends React.Component {
   state = {
     text: null
   };
+
+  componentDidMount() {
+    // this.update();
+    NetInfo.isConnected.addEventListener(
+      "connectionChange",
+      this._handleConnectivityChange
+    );
+
+    NetInfo.isConnected.fetch().done(isConnected => {
+      if (isConnected == true) {
+        this.setState({ connection_Status: "Online" });
+      } else {
+        this.setState({ connection_Status: "Offline" });
+      }
+    });
+  }
+
+  _handleConnectivityChange = isConnected => {
+    if (isConnected == true) {
+      this.setState({ connection_Status: "Online" });
+    } else {
+      this.setState({ connection_Status: "Offline" });
+    }
+
+    this.getItems();
+  };
+
+  getItems() {
+    axios
+      .get("http://192.168.43.22:8080/getItems")
+      .then(response => {
+        console.log("Fetching done");
+        const items = response["data"];
+        console.log(items);
+        this.setState({ loading: false, items });
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
+  }
+
+  componentWillUnmount() {
+    NetInfo.isConnected.removeEventListener(
+      "connectionChange",
+      this._handleConnectivityChange
+    );
+  }
 
   render() {
     return (
@@ -31,6 +85,9 @@ export default class App extends React.Component {
         <ScrollView style={styles.listArea}>
           <Items done={false} ref={todo => (this.todo = todo)} />
         </ScrollView>
+        <Text style={{ fontSize: 20, textAlign: "center", marginBottom: 20 }}>
+          You are {this.state.connection_Status}
+        </Text>
       </View>
     );
   }

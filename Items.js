@@ -1,11 +1,5 @@
 import React, { Component } from "react";
-import {
-  Text,
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  NetInfo
-} from "react-native";
+import { Text, StyleSheet, View, TouchableOpacity } from "react-native";
 import Constants from "expo-constants";
 import { SQLite } from "expo-sqlite";
 import axios from "axios";
@@ -20,19 +14,8 @@ export default class Items extends Component {
   };
 
   componentDidMount() {
-    this.update();
-    NetInfo.isConnected.addEventListener(
-      "connectionChange",
-      this._handleConnectivityChange
-    );
-
-    NetInfo.isConnected.fetch().done(isConnected => {
-      if (isConnected == true) {
-        this.setState({ connection_Status: "Online" });
-      } else {
-        this.setState({ connection_Status: "Offline" });
-      }
-    });
+    // this.update();
+    this.getItems();
   }
 
   getItems() {
@@ -50,23 +33,6 @@ export default class Items extends Component {
   }
 
   componentWillMount = () => {
-    this.getItems();
-  };
-
-  componentWillUnmount() {
-    NetInfo.isConnected.removeEventListener(
-      "connectionChange",
-      this._handleConnectivityChange
-    );
-  }
-
-  _handleConnectivityChange = isConnected => {
-    if (isConnected == true) {
-      this.setState({ connection_Status: "Online" });
-    } else {
-      this.setState({ connection_Status: "Offline" });
-    }
-
     this.getItems();
   };
 
@@ -95,9 +61,6 @@ export default class Items extends Component {
             <Text style={{ color: done ? "#fff" : "#000" }}>{value}</Text>
           </TouchableOpacity>
         ))}
-        <Text style={{ fontSize: 20, textAlign: "center", marginBottom: 20 }}>
-          You are {this.state.connection_Status}
-        </Text>
       </View>
     );
   }
