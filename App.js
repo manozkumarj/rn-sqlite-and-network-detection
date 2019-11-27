@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View, TextInput } from "react-native";
 import Constants from "expo-constants";
 import Items from "./Items";
 import { SQLite } from "expo-sqlite";
+import axios from "axios";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -40,16 +41,30 @@ export default class App extends React.Component {
       return false;
     }
 
-    db.transaction(
-      tx => {
-        tx.executeSql("insert into items (done, value) values (0, ?)", [text]);
-        tx.executeSql("select * from items", [], (_, { rows }) =>
-          console.log(JSON.stringify(rows))
-        );
-      },
-      null,
-      this.update
-    );
+    axios
+      .post("http://192.168.43.22:8080/insertItem", {
+        value: text,
+        done: 0
+      })
+      .then(function(response) {
+        console.log("Insertion done");
+        const items = response["data"];
+        console.log(items);
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
+
+    // db.transaction(
+    //   tx => {
+    //     tx.executeSql("insert into items (done, value) values (0, ?)", [text]);
+    //     tx.executeSql("select * from items", [], (_, { rows }) =>
+    //       console.log(JSON.stringify(rows))
+    //     );
+    //   },
+    //   null,
+    //   this.update
+    // );
   }
 
   update = () => {

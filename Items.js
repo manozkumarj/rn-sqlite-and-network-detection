@@ -39,6 +39,7 @@ export default class Items extends Component {
     axios
       .get("http://192.168.43.22:8080/getItems")
       .then(response => {
+        console.log("Fetching done");
         const items = response["data"];
         console.log(items);
         this.setState({ loading: false, items });
