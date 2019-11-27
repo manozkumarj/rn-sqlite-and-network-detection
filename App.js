@@ -5,6 +5,7 @@ import {
   Text,
   View,
   TextInput,
+  TouchableOpacity,
   NetInfo
 } from "react-native";
 import Constants from "expo-constants";
@@ -16,11 +17,13 @@ const db = SQLite.openDatabase("db.db");
 
 export default class App extends React.Component {
   state = {
-    text: null
+    text: null,
+    connection_Status: "",
+    localData: [],
+    serverIp: "http://192.168.1.100:8080"
   };
 
   componentDidMount() {
-    // this.update();
     NetInfo.isConnected.addEventListener(
       "connectionChange",
       this._handleConnectivityChange
@@ -42,22 +45,28 @@ export default class App extends React.Component {
       this.setState({ connection_Status: "Offline" });
     }
 
+    let getLocalItems = this.state.localData;
+    if (getLocalItems && getLocalItems.length > 0) {
+      this.insertion(getLocalItems);
+    }
+
     this.getItems();
   };
 
-  getItems() {
+  getItems = () => {
     axios
-      .get("http://192.168.43.22:8080/getItems")
+      .get(this.state.serverIp + "/getItems")
       .then(response => {
         console.log("Fetching done");
         const items = response["data"];
+        this.todo = items;
         console.log(items);
         this.setState({ loading: false, items });
       })
       .catch(function(error) {
         console.log(error);
       });
-  }
+  };
 
   componentWillUnmount() {
     NetInfo.isConnected.removeEventListener(
@@ -65,6 +74,25 @@ export default class App extends React.Component {
       this._handleConnectivityChange
     );
   }
+
+  insertion = data => {
+    axios
+      .post(this.state.serverIp + "/insertItem", {
+        value: data
+      })
+      .then(response => {
+        console.log("Insertion done");
+        const items = response["data"];
+        console.log(items);
+        let setEmpty = [];
+        this.setState({ localData: setEmpty });
+        console.log(this.state.localData.length);
+        this.getItems();
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
+  };
 
   render() {
     return (
@@ -85,32 +113,29 @@ export default class App extends React.Component {
         <ScrollView style={styles.listArea}>
           <Items done={false} ref={todo => (this.todo = todo)} />
         </ScrollView>
+
         <Text style={{ fontSize: 20, textAlign: "center", marginBottom: 20 }}>
-          You are {this.state.connection_Status}
+          You are {this.state.connection_Status} - {this.state.localData.length}
         </Text>
       </View>
     );
   }
 
-  add(text) {
+  add = text => {
     // is text empty?
     if (text === null || text === "") {
       return false;
     }
 
-    axios
-      .post("http://192.168.43.22:8080/insertItem", {
-        value: text,
-        done: 0
-      })
-      .then(function(response) {
-        console.log("Insertion done");
-        const items = response["data"];
-        console.log(items);
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
+    let networkStatus = this.state.connection_Status;
+
+    let getLocalItems = this.state.localData;
+    getLocalItems.push(text);
+    this.setState({ localData: getLocalItems });
+
+    if (networkStatus.toLocaleLowerCase() === "online") {
+      this.insertion(text);
+    }
 
     db.transaction(
       tx => {
@@ -119,10 +144,10 @@ export default class App extends React.Component {
           console.log(JSON.stringify(rows))
         );
       },
-      null,
-      this.update
+      null
+      // this.update
     );
-  }
+  };
 
   update = () => {
     this.todo && this.todo.update();

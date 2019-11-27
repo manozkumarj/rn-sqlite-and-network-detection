@@ -9,8 +9,8 @@ const db = SQLite.openDatabase("db.db");
 export default class Items extends Component {
   state = {
     items: null,
-    connection_Status: "",
-    loading: false
+    loading: false,
+    serverIp: "http://192.168.1.100:8080"
   };
 
   componentDidMount() {
@@ -20,7 +20,7 @@ export default class Items extends Component {
 
   getItems() {
     axios
-      .get("http://192.168.43.22:8080/getItems")
+      .get(this.state.serverIp + "/getItems")
       .then(response => {
         console.log("Fetching done");
         const items = response["data"];
