@@ -18,6 +18,7 @@ const db = SQLite.openDatabase("db.db");
 
 export default class App extends React.Component {
   state = {
+    items: null,
     text: null,
     connection_Status: "",
     localData: [],
@@ -96,6 +97,33 @@ export default class App extends React.Component {
       });
   };
 
+  renderTodos = () => {
+    const heading = "Todo";
+
+    if (this.state.items.length === 0) {
+      return;
+    }
+
+    return (
+      <View style={styles.sectionContainer}>
+        <Text style={styles.sectionHeading}>{heading}</Text>
+        {this.state.items.map(({ id, done, value }) => (
+          <TouchableOpacity
+            key={id}
+            style={{
+              backgroundColor: done ? "#1c9963" : "#fff",
+              borderColor: "#000",
+              borderWidth: 1,
+              padding: 8
+            }}
+          >
+            <Text style={{ color: done ? "#fff" : "#000" }}>{value}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
+  };
+
   renderUntracked = () => {
     if (this.state.localData.length === 0) {
       return;
@@ -112,6 +140,12 @@ export default class App extends React.Component {
   };
 
   render() {
+    const { items } = this.state;
+
+    if (items === null || items.length === 0) {
+      return null;
+    }
+
     return (
       <View style={styles.container}>
         <Text style={styles.heading}>SQLite Example</Text>
@@ -127,9 +161,7 @@ export default class App extends React.Component {
             value={this.state.text}
           />
         </View>
-        <ScrollView style={styles.listArea}>
-          <Items />
-        </ScrollView>
+        <ScrollView style={styles.listArea}>{this.renderTodos()}</ScrollView>
 
         {this.renderUntracked()}
 
