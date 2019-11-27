@@ -130,12 +130,22 @@ export default class App extends React.Component {
     }
 
     return (
-      <ScrollView style={styles.listArea}>
+      <View style={styles.sectionContainer}>
         <Text style={styles.sectionHeading}>Untracked Todos</Text>
         {this.state.localData.map(value => (
-          <Untracked key={value} data={value} />
+          <TouchableOpacity
+            key={value}
+            style={{
+              backgroundColor: "#fff",
+              borderColor: "#000",
+              borderWidth: 1,
+              padding: 8
+            }}
+          >
+            <Text style={{ color: "#000" }}>{value}</Text>
+          </TouchableOpacity>
         ))}
-      </ScrollView>
+      </View>
     );
   };
 
@@ -148,7 +158,9 @@ export default class App extends React.Component {
 
     return (
       <View style={styles.container}>
-        <Text style={styles.heading}>SQLite Example</Text>
+        <Text style={styles.heading}>
+          <Text>SQLite Example - {this.state.connection_Status}</Text>
+        </Text>
         <View style={styles.flexRow}>
           <TextInput
             onChangeText={text => this.setState({ text })}
@@ -165,8 +177,15 @@ export default class App extends React.Component {
 
         {this.renderUntracked()}
 
-        <Text style={{ fontSize: 20, textAlign: "center", marginBottom: 20 }}>
-          You are {this.state.connection_Status} - {this.state.localData.length}
+        <Text
+          style={{
+            fontSize: 20,
+            textAlign: "center",
+            marginBottom: 10,
+            marginTop: 10
+          }}
+        >
+          Untracked Todos = {this.state.localData.length}
         </Text>
       </View>
     );
