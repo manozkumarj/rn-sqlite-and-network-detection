@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import Constants from "expo-constants";
 import { SQLite } from "expo-sqlite";
+import axios from "axios";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -34,16 +35,21 @@ export default class Items extends Component {
     });
   }
 
-  componentWillMount = async () => {
-    try {
-      const response = await fetch("http://192.168.43.22:8080/getItems");
-      const items = await response.json();
-      console.log(items);
+  getItems() {
+    axios
+      .get("http://192.168.43.22:8080/getItems")
+      .then(response => {
+        const items = response["data"];
+        console.log(items);
+        this.setState({ loading: false, items });
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
+  }
 
-      this.setState({ loading: false, items });
-    } catch (e) {
-      this.setState({ loading: false, error: true });
-    }
+  componentWillMount = () => {
+    this.getItems();
   };
 
   componentWillUnmount() {
@@ -53,22 +59,14 @@ export default class Items extends Component {
     );
   }
 
-  _handleConnectivityChange = async isConnected => {
+  _handleConnectivityChange = isConnected => {
     if (isConnected == true) {
       this.setState({ connection_Status: "Online" });
     } else {
       this.setState({ connection_Status: "Offline" });
     }
 
-    try {
-      const response = await fetch("http://192.168.1.100:8080/getItems");
-      const items = await response.json();
-      console.log(items);
-
-      this.setState({ loading: false, items });
-    } catch (e) {
-      this.setState({ loading: false, error: true });
-    }
+    this.getItems();
   };
 
   render() {
