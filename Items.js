@@ -20,7 +20,7 @@ export default class Items extends Component {
   };
 
   componentDidMount() {
-    // this.update();
+    this.update();
     NetInfo.isConnected.addEventListener(
       "connectionChange",
       this._handleConnectivityChange

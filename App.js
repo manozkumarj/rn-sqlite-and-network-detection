@@ -55,16 +55,16 @@ export default class App extends React.Component {
         console.log(error);
       });
 
-    // db.transaction(
-    //   tx => {
-    //     tx.executeSql("insert into items (done, value) values (0, ?)", [text]);
-    //     tx.executeSql("select * from items", [], (_, { rows }) =>
-    //       console.log(JSON.stringify(rows))
-    //     );
-    //   },
-    //   null,
-    //   this.update
-    // );
+    db.transaction(
+      tx => {
+        tx.executeSql("insert into items (done, value) values (0, ?)", [text]);
+        tx.executeSql("select * from items", [], (_, { rows }) =>
+          console.log(JSON.stringify(rows))
+        );
+      },
+      null,
+      this.update
+    );
   }
 
   update = () => {
