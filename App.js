@@ -12,6 +12,7 @@ import Constants from "expo-constants";
 import Items from "./Items";
 import { SQLite } from "expo-sqlite";
 import axios from "axios";
+import Untracked from "./Untracked";
 
 const db = SQLite.openDatabase("db.db");
 
@@ -20,7 +21,8 @@ export default class App extends React.Component {
     text: null,
     connection_Status: "",
     localData: [],
-    serverIp: "http://192.168.1.100:8080"
+    serverIp: "http://192.168.1.100:8080",
+    unTracked: [1, 2, 3]
   };
 
   componentDidMount() {
@@ -94,6 +96,21 @@ export default class App extends React.Component {
       });
   };
 
+  renderUntracked = () => {
+    if (this.state.localData.length === 0) {
+      return;
+    }
+
+    return (
+      <ScrollView style={styles.listArea}>
+        <Text style={styles.sectionHeading}>Untracked Todos</Text>
+        {this.state.localData.map(value => (
+          <Untracked key={value} data={value} />
+        ))}
+      </ScrollView>
+    );
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -111,8 +128,10 @@ export default class App extends React.Component {
           />
         </View>
         <ScrollView style={styles.listArea}>
-          <Items done={false} ref={todo => (this.todo = todo)} />
+          <Items />
         </ScrollView>
+
+        {this.renderUntracked()}
 
         <Text style={{ fontSize: 20, textAlign: "center", marginBottom: 20 }}>
           You are {this.state.connection_Status} - {this.state.localData.length}

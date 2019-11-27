@@ -37,9 +37,8 @@ export default class Items extends Component {
   };
 
   render() {
-    const { done: doneHeading } = this.props;
     const { items } = this.state;
-    const heading = doneHeading ? "Completed" : "Todo";
+    const heading = "Todo";
 
     if (items === null || items.length === 0) {
       return null;
@@ -63,16 +62,6 @@ export default class Items extends Component {
         ))}
       </View>
     );
-  }
-
-  update() {
-    db.transaction(tx => {
-      tx.executeSql(
-        `select * from items where done = ?;`,
-        [this.props.done ? 1 : 0],
-        (_, { rows: { _array } }) => this.setState({ items: _array })
-      );
-    });
   }
 }
 
