@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "expo-sqlite-example",
-    "description": "sqlite example in expo",
+    "name": "RN Sqlite App",
+    "description": "This is app is created just testing purpose",
     "scheme": "expo-sqlite-example",
     "slug": "expo-sqlite-example",
     "privacy": "public",
@@ -19,6 +19,12 @@
     },
     "ios": {
       "supportsTablet": true
+    },
+    "android": {
+      "icon": "./assets/icon.png",
+      "versionCode": 1,
+      "permissions": [],
+      "package": "com.mightyyy.firstapp"
     }
   }
 }

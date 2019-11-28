@@ -6,7 +6,8 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-  NetInfo
+  NetInfo,
+  AppState
 } from "react-native";
 import Constants from "expo-constants";
 import Items from "./Items";
@@ -17,16 +18,31 @@ import Untracked from "./Untracked";
 const db = SQLite.openDatabase("db.db");
 
 export default class App extends React.Component {
-  state = {
-    items: null,
-    text: null,
-    connection_Status: "",
-    localData: [],
-    serverIp: "http://192.168.43.22:8080",
-    unTracked: [1, 2, 3]
-  };
+  // state = {
+  //   items: null,
+  //   text: null,
+  //   connection_Status: "",
+  //   localData: [],
+  //   serverIp: "http://192.168.43.22:8080",
+  //   unTracked: [1, 2, 3]
+  // };
+
+  constructor() {
+    super();
+    this.state = {
+      appState: AppState.currentState,
+      items: null,
+      text: null,
+      connection_Status: "",
+      localData: [],
+      serverIp: "http://192.168.43.22:8080",
+      unTracked: [1, 2, 3]
+    };
+  }
 
   componentDidMount() {
+    AppState.addEventListener("change", this._handleAppStateChange);
+
     NetInfo.isConnected.addEventListener(
       "connectionChange",
       this._handleConnectivityChange
@@ -72,11 +88,28 @@ export default class App extends React.Component {
   };
 
   componentWillUnmount() {
+    AppState.removeEventListener("change", this._handleAppStateChange);
+
     NetInfo.isConnected.removeEventListener(
       "connectionChange",
       this._handleConnectivityChange
     );
   }
+
+  _handleAppStateChange = nextAppState => {
+    this.setState({ appState: nextAppState });
+
+    if (nextAppState === "background") {
+      // Do something here on app background.
+      console.log("App is in Background Mode.");
+    } else if (nextAppState === "active") {
+      // Do something here on app active foreground mode.
+      console.log("App is in Active Foreground Mode.");
+    } else {
+      // Do something here on app inactive mode.
+      console.log("App is in inactive Mode.");
+    }
+  };
 
   insertion = data => {
     axios
@@ -143,6 +176,9 @@ export default class App extends React.Component {
             }}
           >
             <Text style={{ color: "#000" }}>{value}</Text>
+            <Text style={styles.text}>
+              Current state is: {this.state.appState}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -259,5 +295,9 @@ const styles = StyleSheet.create({
   sectionHeading: {
     fontSize: 18,
     marginBottom: 8
+  },
+  text: {
+    fontSize: 20,
+    color: "blue"
   }
 });
