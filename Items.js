@@ -10,7 +10,7 @@ export default class Items extends Component {
   state = {
     items: null,
     loading: false,
-    serverIp: "http://192.168.1.100:8080"
+    serverIp: "http://192.168.43.22:8080"
   };
 
   componentDidMount() {

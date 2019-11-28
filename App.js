@@ -22,7 +22,7 @@ export default class App extends React.Component {
     text: null,
     connection_Status: "",
     localData: [],
-    serverIp: "http://192.168.1.100:8080",
+    serverIp: "http://192.168.43.22:8080",
     unTracked: [1, 2, 3]
   };
 

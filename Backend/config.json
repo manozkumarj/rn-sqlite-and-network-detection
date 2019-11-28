@@ -1,0 +1,8 @@
+{
+	"project_name": "React Native Sqlite",
+	"deployment_type": "development-mode",
+	"host": "127.0.0.1",
+	"database": "rn-sqlite",
+	"user": "root",	
+	"password": ""
+}

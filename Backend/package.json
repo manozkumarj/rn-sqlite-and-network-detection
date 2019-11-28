@@ -1,0 +1,22 @@
+{
+	"name": "rest-api",
+	"version": "1.0.0",
+	"description": "API for project Digwal",
+	"main": "server.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"aes256": "^1.0.4",
+		"body-parser": "^1.18.2",
+		"cors": "^2.8.4",
+		"express": "^4.16.2",
+		"mysql": "^2.15.0",
+		"request": "latest"
+	},
+	"engines": {
+		"node": "9.x"
+	}
+}
